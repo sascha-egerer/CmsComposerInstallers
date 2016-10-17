@@ -145,7 +145,11 @@ class ExtensionInstaller implements InstallerInterface
             throw new \InvalidArgumentException('Package is not installed: ' . $initial);
         }
         $this->binaryInstaller->removeBinaries($initial);
-        $this->updateCode($initial, $target);
+        try {
+            $this->updateCode($initial, $target);
+        } catch (\RuntimeException $e) {
+            $this->io->writeError('    <warning>Could not update extension "' . $e->getMessage() . '"</warning>');
+        }
         $this->binaryInstaller->installBinaries($target, $this->getInstallPath($target));
         $repo->removePackage($initial);
         if (!$repo->hasPackage($target)) {
